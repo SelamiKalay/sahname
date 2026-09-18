@@ -1,0 +1,25 @@
+{
+  "appId": "com.selam.sahname",
+  "appName": "Şahname",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 900,
+      "launchAutoHide": true,
+      "backgroundColor": "#0a0c10",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0d0f14",
+      "overlaysWebView": false
+    }
+  }
+}

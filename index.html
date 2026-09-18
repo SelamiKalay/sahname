@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="tr" data-ui-theme="obsidian" data-board="walnut" data-pieces="classic">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d0f14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Şahname — Satranç Antrenörü</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="application-name" content="Şahname">
+<meta name="apple-mobile-web-app-title" content="Şahname">
+
+<!-- Tüm bağımlılıklar uygulamanın içinde: internet gerekmez -->
+<link rel="stylesheet" href="vendor/fa.css">
+<script src="vendor/chess.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===================== AÇILIŞ EKRANI ===================== -->
+<div class="splash" id="splash">
+  <div class="splash__inner">
+    <svg class="splash__mark" viewBox="0 0 512 512" width="120" height="120" aria-hidden="true">
+      <g fill="currentColor">
+        <path class="sp-plume" d="M256 34 C241 58 243 78 256 90 C269 78 271 58 256 34 Z"/>
+        <path class="sp-jewel" d="M256 82 L271 100 L256 118 L241 100 Z"/>
+        <path class="sp-cap"   d="M256 110 C300 110 328 140 328 176 L184 176 C184 140 212 110 256 110 Z"/>
+        <path class="sp-coil1" d="M170 198 Q256 168 342 198 Q256 228 170 198 Z"/>
+        <path class="sp-coil2" d="M156 246 Q256 214 356 246 Q256 278 156 246 Z"/>
+        <path class="sp-bookL" d="M64 330 Q140 300 242 330 L242 448 Q140 418 64 448 Z"/>
+        <path class="sp-bookR" d="M448 330 Q372 300 270 330 L270 448 Q372 418 448 448 Z"/>
+      </g>
+    </svg>
+    <div class="splash__name">ŞAHNAME</div>
+    <div class="splash__sub">Satranç Antrenörü</div>
+    <div class="splash__bar"><span id="splashBar"></span></div>
+    <div class="splash__status" id="splashStatus">Motor hazırlanıyor…</div>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ===================== ÜST BAR ===================== -->
+  <header class="appbar">
+    <button class="appbar__profile" id="appbarProfile" type="button" aria-label="Profil">
+      <span class="avatar avatar--sm" id="appbarAvatar"><i class="fa-solid fa-user"></i></span>
+      <span class="appbar__meta">
+        <span class="appbar__name" id="appbarName">Misafir</span>
+        <span class="appbar__rank" id="appbarRank">Acemi</span>
+      </span>
+    </button>
+
+    <div class="coin-pill" id="coinPill" title="S-Coin bakiyen">
+      <i class="fa-solid fa-coins"></i>
+      <span id="coinValue">0</span>
+      <span class="coin-pill__unit">S</span>
+    </div>
+  </header>
+
+  <!-- ===================== SEKMELER ===================== -->
+  <main class="views" id="views">
+
+    <!-- ---------- 1. ÖĞRETİCİ ---------- -->
+    <section class="view is-active" id="view-learn" data-tab="learn">
+
+      <!-- 1a. Serbest oyun + analiz -->
+      <div class="view__inner screen is-active" id="learnPlay">
+        <div class="page-head">
+          <h1 class="page-title">Öğretici</h1>
+          <p class="page-sub">Serbest oyna, motor her hamlede en iyisini göstersin.</p>
+        </div>
+
+        <div class="segmented" id="learnModeSeg">
+          <button class="segmented__opt is-active" type="button" data-mode="play">
+            <i class="fa-solid fa-chess-board"></i> Serbest Oyun</button>
+          <button class="segmented__opt" type="button" data-mode="lessons">
+            <i class="fa-solid fa-graduation-cap"></i> Dersler</button>
+        </div>
+
+        <div class="caps-bar">
+          <span class="captures" id="learnTopCaps"></span>
+          <span class="adv" id="learnTopAdv" hidden></span>
+        </div>
+
+        <div class="board-stage">
+          <div class="board-wrap">
+            <div class="board" id="learnBoard"></div>
+          </div>
+        </div>
+
+        <div class="caps-bar">
+          <span class="captures" id="learnBotCaps"></span>
+          <span class="adv" id="learnBotAdv" hidden></span>
+        </div>
+
+        <!-- İnceleme çubuğu: analiz sırasında tahtanın hemen altında durur -->
+        <div class="stepper card" id="learnStepper" hidden>
+          <div class="stepper__row">
+            <button class="iconbtn iconbtn--sm" type="button" id="stepStart" aria-label="Başa"><i class="fa-solid fa-backward-fast"></i></button>
+            <button class="iconbtn iconbtn--sm" type="button" id="stepPrev" aria-label="Önceki"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="iconbtn iconbtn--play" type="button" id="stepPlay" aria-label="Simülasyonu başlat"><i class="fa-solid fa-play"></i></button>
+            <button class="iconbtn iconbtn--sm" type="button" id="stepNext" aria-label="Sonraki"><i class="fa-solid fa-chevron-right"></i></button>
+            <button class="iconbtn iconbtn--sm" type="button" id="stepEnd" aria-label="Sona"><i class="fa-solid fa-forward-fast"></i></button>
+          </div>
+          <div class="stepper__row">
+            <span class="stepper__label" id="stepLabel">0 / 0</span>
+            <span class="stepper__verdict" id="stepVerdict">—</span>
+            <span class="chip chip--eval" id="stepEval">0.00</span>
+            <button class="btn btn--ghost btn--sm" type="button" id="stepExit">Çık</button>
+          </div>
+          <div class="scanbar" id="scanBar" hidden><span class="scanbar__fill" id="scanFill"></span></div>
+        </div>
+
+        <!-- Tahtanın hemen altındaki kompakt araç çubuğu -->
+        <div class="board-toolbar" id="learnToolbar">
+          <button class="toolbtn" type="button" id="learnFlip" title="Tahtayı çevir" aria-label="Tahtayı çevir">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+          <button class="toolbtn" type="button" id="learnUndo" title="Son hamleyi göster">
+            <i class="fa-solid fa-eye"></i><span>Son Hamle</span>
+          </button>
+          <button class="toolbtn" type="button" id="learnNew" title="Yeni oyun">
+            <i class="fa-solid fa-repeat"></i><span>Yeni</span>
+          </button>
+          <span class="chip chip--eval" id="learnEvalChip">0.00</span>
+        </div>
+
+        <div class="turn-strip">
+          <span class="turn-dot" id="learnTurnDot"></span>
+          <span class="turn-strip__text" id="learnStatus">Sıra: <strong>Beyaz</strong></span>
+          <span class="spinner" id="learnSpinner" hidden></span>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="fa-solid fa-lightbulb"></i> Motor Önerisi</h3>
+            <span class="chip chip--ghost" id="learnDepth">—</span>
+          </div>
+          <div class="hint-row">
+            <span class="hint-dot hint-dot--best"></span>
+            <div class="hint-row__body">
+              <div class="hint-row__label">En iyi hamle</div>
+              <div class="hint-row__value" id="learnBestMove">Hesaplanıyor…</div>
+            </div>
+          </div>
+          <div class="hint-row" id="learnWhyRow" hidden>
+            <span class="hint-dot hint-dot--alt"></span>
+            <div class="hint-row__body">
+              <div class="hint-row__label">Neden?</div>
+              <div class="hint-row__value" id="learnWhy">—</div>
+            </div>
+          </div>
+          <div class="hint-row" id="learnQualityRow" hidden>
+            <span class="hint-dot" id="learnQualityDot"></span>
+            <div class="hint-row__body">
+              <div class="hint-row__label">Son hamlen</div>
+              <div class="hint-row__value" id="learnQuality">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Maç kaydı -->
+        <div class="card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="fa-solid fa-list-ol"></i> Maç Kaydı</h3>
+            <span class="chip chip--ghost" id="learnMoveCount">0 hamle</span>
+          </div>
+          <div class="movelist" id="learnMoves"></div>
+          <textarea class="pgn-box" id="learnPgn" readonly rows="3" placeholder="Hamleler burada PGN olarak birikir"></textarea>
+          <div class="btn-row btn-row--2">
+            <button class="btn btn--ghost btn--sm" type="button" id="learnCopyPgn"><i class="fa-regular fa-copy"></i> Kopyala</button>
+            <button class="btn btn--ghost btn--sm" type="button" id="learnToBot"><i class="fa-solid fa-robot"></i> Bot'a Aktar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1b. Taş dersleri -->
+      <div class="view__inner screen" id="learnLessons">
+        <div class="page-head">
+          <h1 class="page-title">Dersler</h1>
+          <p class="page-sub">Taşlar nasıl hareket eder? Kareye dokun, gidebileceği yerler yansın.</p>
+        </div>
+
+        <div class="segmented" id="learnModeSeg2">
+          <button class="segmented__opt" type="button" data-mode="play">
+            <i class="fa-solid fa-chess-board"></i> Serbest Oyun</button>
+          <button class="segmented__opt is-active" type="button" data-mode="lessons">
+            <i class="fa-solid fa-graduation-cap"></i> Dersler</button>
+        </div>
+
+        <div class="lesson-tabs" id="lessonTabs"></div>
+
+        <div class="board-stage">
+          <div class="board-wrap">
+            <div class="board" id="lessonBoard"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="fa-solid fa-book-open"></i> <span id="lessonTitle">Piyon</span></h3>
+            <span class="chip chip--ghost" id="lessonCount">—</span>
+          </div>
+          <p class="lesson-summary" id="lessonSummary"></p>
+          <ul class="lesson-points" id="lessonPoints"></ul>
+          <button class="btn btn--primary btn--block btn--sm" type="button" id="lessonPlay" hidden>
+            <i class="fa-solid fa-play"></i> Hamleyi Oynat
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 2. ÇOK OYUNCULU ---------- -->
+    <section class="view" id="view-multi" data-tab="multi">
+
+      <!-- 2a. Menü -->
+      <div class="view__inner screen is-active" id="multiMenu">
+        <div class="page-head">
+          <h1 class="page-title">Çok Oyunculu</h1>
+          <p class="page-sub">Arkadaşınla oyna, kazandıkça S kazan.</p>
+        </div>
+
+        <button class="mode-card" type="button" id="btnPassPlay">
+          <span class="mode-card__icon mode-card__icon--a"><i class="fa-solid fa-mobile-screen"></i></span>
+          <span class="mode-card__body">
+            <span class="mode-card__title">Aynı Cihazda Oyna</span>
+            <span class="mode-card__desc">Cihazı sırayla verin — Pass &amp; Play</span>
+          </span>
+          <i class="fa-solid fa-chevron-right mode-card__arrow"></i>
+        </button>
+
+        <button class="mode-card" type="button" id="btnLanOpen">
+          <span class="mode-card__icon mode-card__icon--b"><i class="fa-solid fa-wifi"></i></span>
+          <span class="mode-card__body">
+            <span class="mode-card__title">Yerel Ağda Oyna</span>
+            <span class="mode-card__desc">Aynı Wi-Fi ağındaki cihazla eşleş</span>
+          </span>
+          <i class="fa-solid fa-chevron-right mode-card__arrow"></i>
+        </button>
+
+        <div class="card card--muted">
+          <div class="card__head"><h3 class="card__title"><i class="fa-solid fa-trophy"></i> Maç Ödülleri</h3></div>
+          <div class="reward-row">
+            <span class="reward-row__label"><i class="fa-solid fa-crown reward-ico reward-ico--win"></i> Galibiyet</span>
+            <span class="reward-row__value reward-row__value--win">+50 S</span>
+          </div>
+          <div class="reward-row">
+            <span class="reward-row__label"><i class="fa-solid fa-handshake reward-ico reward-ico--draw"></i> Berabere</span>
+            <span class="reward-row__value reward-row__value--draw">+35 S</span>
+          </div>
+          <div class="reward-row">
+            <span class="reward-row__label"><i class="fa-solid fa-shield-halved reward-ico"></i> Mağlubiyet</span>
+            <span class="reward-row__value">+25 S</span>
+          </div>
+          <p class="reward-note"><i class="fa-solid fa-circle-info"></i> Aynı cihazda oynanan maçlar S kazandırmaz.</p>
+        </div>
+
+        <div class="card card--muted">
+          <div class="card__head"><h3 class="card__title"><i class="fa-solid fa-chart-simple"></i> İstatistiklerin</h3></div>
+          <div class="stat-row">
+            <div class="stat"><span class="stat__v" id="statWins">0</span><span class="stat__k">Galibiyet</span></div>
+            <div class="stat"><span class="stat__v" id="statLosses">0</span><span class="stat__k">Mağlubiyet</span></div>
+            <div class="stat"><span class="stat__v" id="statDraws">0</span><span class="stat__k">Beraberlik</span></div>
+          </div>
+          <div class="stat-row stat-row--elo">
+            <div class="stat"><span class="stat__v stat__v--elo" id="statElo">800</span><span class="stat__k">Derecen</span></div>
+            <div class="stat"><span class="stat__v" id="statPeak">800</span><span class="stat__k">En yüksek</span></div>
+            <div class="stat"><span class="stat__v" id="statGames">0</span><span class="stat__k">Dereceli maç</span></div>
+          </div>
+          <div class="bot-elo">
+            <span class="bot-elo__t">Bot dereceleri</span>
+            <span class="bot-elo__l"><b>Kolay</b> 800</span>
+            <span class="bot-elo__l"><b>Orta</b> 1250</span>
+            <span class="bot-elo__l"><b>Zor</b> 1750</span>
+            <span class="bot-elo__l"><b>Usta</b> 2300</span>
+          </div>
+        </div>
+
+        <!-- Geçmiş analizler: yalnızca son 5 maç saklanır -->
+        <div class="card card--muted">
+          <div class="card__head">
+            <h3 class="card__title"><i class="fa-solid fa-clock-rotate-left"></i> Geçmiş Analizler</h3>
+            <span class="badge">son 5</span>
+          </div>
+          <div class="history-list" id="historyList"></div>
+        </div>
+      </div>
+
+      <!-- 2b. Yerel ağ: rol seçimi -->
+      <div class="view__inner screen" id="multiLan">
+        <div class="page-head page-head--nav">
+          <button class="iconbtn" type="button" data-back="multiMenu" aria-label="Geri"><i class="fa-solid fa-chevron-left"></i></button>
+          <div><h1 class="page-title">Yerel Ağ</h1><p class="page-sub">İki cihaz doğrudan birbirine bağlanır.</p></div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="fa-solid fa-tower-broadcast"></i> Nasıl çalışır</h3>
+            <span class="badge" id="lanTransport">Doğrudan</span>
+          </div>
+          <ol class="howto">
+            <li>Bir cihaz <strong>davet eder</strong>, ekranda QR çıkar.</li>
+            <li>Diğer cihaz bu QR'ı <strong>okutur</strong> ve kendi QR'ını gösterir.</li>
+            <li>İlk cihaz o QR'ı okutur — bağlantı kurulur.</li>
+          </ol>
+          <p class="muted-text">Sunucu veya internet gerekmez; iki cihazın aynı Wi-Fi ağında olması yeterli.</p>
+        </div>
+
+        <button class="btn btn--primary btn--block btn--lg" type="button" id="btnHost">
+          <i class="fa-solid fa-share-nodes"></i> Davet Et
+        </button>
+        <button class="btn btn--ghost btn--block btn--lg" type="button" id="btnGuest">
+          <i class="fa-solid fa-qrcode"></i> Daveti Okut
+        </button>
+        <p class="scan-note" id="scanNote" hidden></p>
+      </div>
+
+      <!-- 2c. El sıkışma: QR göster / okut -->
+      <div class="view__inner screen" id="multiWait">
+        <div class="page-head page-head--nav">
+          <button class="iconbtn" type="button" id="lanLeave" aria-label="Eşleşmeden çık"><i class="fa-solid fa-chevron-left"></i></button>
+          <div><h1 class="page-title" id="hsTitle">Davet</h1><p class="page-sub" id="hsSub">Rakibin bu kodu okutsun</p></div>
+        </div>
+
+        <div class="me-card">
+          <span class="avatar avatar--sm" id="hsMeAvatar"><i class="fa-solid fa-user"></i></span>
+          <span class="me-card__body">
+            <span class="me-card__name" id="hsMeName">Misafir</span>
+            <span class="me-card__elo" id="hsMeElo">800 Elo</span>
+          </span>
+          <span class="me-card__tag">Sen</span>
+        </div>
+
+        <div class="card center-card">
+          <div class="qr-box" id="qrBox"></div>
+          <p class="muted-text" id="hsHint">Kod hazırlanıyor…</p>
+        </div>
+
+        <button class="btn btn--primary btn--block btn--lg" type="button" id="btnScanPeer" hidden>
+          <i class="fa-solid fa-camera"></i> <span id="scanPeerLabel">Rakibin Kodunu Okut</span>
+        </button>
+
+        <div class="waiting" id="hsWaiting" hidden>
+          <span class="spinner spinner--lg"></span>
+          <span id="waitText">Bağlanılıyor…</span>
+        </div>
+      </div>
+
+      <!-- 2d. Oyun ekranı (pass&play + lan ortak) -->
+      <div class="view__inner screen" id="multiGame">
+        <div class="page-head page-head--nav">
+          <button class="iconbtn" type="button" id="multiExit" aria-label="Maçtan çık"><i class="fa-solid fa-chevron-left"></i></button>
+          <div><h1 class="page-title" id="multiTitle">Aynı Cihazda</h1><p class="page-sub" id="multiSub">Sırayla oynayın</p></div>
+        </div>
+
+        <div class="player-bar" id="multiTop">
+          <span class="avatar avatar--xs" id="multiTopAvatar"><i class="fa-solid fa-user"></i></span>
+          <span class="player-bar__id">
+            <span class="player-bar__name" id="multiTopName">Siyah</span>
+            <span class="player-bar__elo" id="multiTopElo" hidden></span>
+          </span>
+          <span class="captures" id="multiTopCaps"></span>
+          <span class="adv" id="multiTopAdv" hidden></span>
+          <span class="player-bar__badge" id="multiTopBadge"></span>
+        </div>
+
+        <div class="board-stage">
+          <div class="board-wrap">
+            <div class="board" id="multiBoard"></div>
+          </div>
+        </div>
+
+        <div class="player-bar" id="multiBottom">
+          <span class="avatar avatar--xs" id="multiBotAvatar"><i class="fa-solid fa-user"></i></span>
+          <span class="player-bar__id">
+            <span class="player-bar__name" id="multiBotName">Beyaz</span>
+            <span class="player-bar__elo" id="multiBotElo" hidden></span>
+          </span>
+          <span class="captures" id="multiBotCaps"></span>
+          <span class="adv" id="multiBotAdv" hidden></span>
+          <span class="player-bar__badge" id="multiBotBadge"></span>
+        </div>
+
+        <div class="turn-strip">
+          <span class="turn-dot" id="multiTurnDot"></span>
+          <span class="turn-strip__text" id="multiStatus">Sıra: <strong>Beyaz</strong></span>
+        </div>
+
+        <div class="btn-row" id="multiActions">
+          <button class="btn btn--ghost" type="button" id="multiUndo"><i class="fa-solid fa-eye"></i> Son Hamle</button>
+          <button class="btn btn--ghost" type="button" id="multiResign"><i class="fa-solid fa-flag"></i> Teslim Ol</button>
+          <button class="btn btn--primary" type="button" id="multiNew"><i class="fa-solid fa-repeat"></i> Yeni Maç</button>
+        </div>
+
+        <div class="movelist card" id="multiMoves"></div>
+      </div>
+    </section>
+
+    <!-- ---------- 3. BOT ---------- -->
+    <section class="view" id="view-bot" data-tab="bot">
+
+      <!-- 3a. Kurulum -->
+      <div class="view__inner screen is-active" id="botSetup">
+        <div class="page-head">
+          <h1 class="page-title">Bot'a Karşı</h1>
+          <p class="page-sub">Zorluğu seç, mücadeleye başla.</p>
+        </div>
+
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="fa-solid fa-gauge-high"></i> Zorluk</h3></div>
+          <div class="level-grid" id="levelGrid">
+            <button class="level" type="button" data-name="Acemi"><span class="level__name">Acemi</span><span class="level__meta">Yeni öğrenen · ~400</span></button>
+            <button class="level is-active" type="button" data-name="Kolay"><span class="level__name">Kolay</span><span class="level__meta">Hata yapar · ~700</span></button>
+            <button class="level" type="button" data-name="Orta"><span class="level__name">Orta</span><span class="level__meta">Dengeli · ~1100</span></button>
+            <button class="level" type="button" data-name="Zor"><span class="level__name">Zor</span><span class="level__meta">İleri seviye · ~1600</span></button>
+            <button class="level" type="button" data-name="Usta"><span class="level__name">Usta</span><span class="level__meta">Acımasız · ~2200</span></button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="fa-solid fa-chess-pawn"></i> Rengin</h3></div>
+          <div class="segmented" id="colorSeg">
+            <button class="segmented__opt is-active" type="button" data-color="w"><i class="fa-regular fa-circle"></i> Beyaz</button>
+            <button class="segmented__opt" type="button" data-color="b"><i class="fa-solid fa-circle"></i> Siyah</button>
+            <button class="segmented__opt" type="button" data-color="r"><i class="fa-solid fa-shuffle"></i> Rastgele</button>
+          </div>
+        </div>
+
+        <button class="btn btn--primary btn--block btn--lg" type="button" id="botStart">
+          <i class="fa-solid fa-play"></i> Oyunu Başlat
+        </button>
+        <p class="fineprint">Kazanırsan <strong>+50 S</strong>, kaybedersen <strong>+25 S</strong> kazanırsın.</p>
+      </div>
+
+      <!-- 3b. Oyun -->
+      <div class="view__inner screen" id="botGame">
+        <div class="page-head page-head--nav">
+          <button class="iconbtn" type="button" id="botExit" aria-label="Maçtan çık"><i class="fa-solid fa-chevron-left"></i></button>
+          <div><h1 class="page-title">Bot Maçı</h1><p class="page-sub" id="botLevelLabel">Orta</p></div>
+        </div>
+
+        <div class="player-bar">
+          <span class="avatar avatar--xs avatar--bot" id="botTopAvatar"><i class="fa-solid fa-robot"></i></span>
+          <span class="player-bar__id">
+            <span class="player-bar__name" id="botName">Bot</span>
+            <span class="player-bar__elo" id="botTopElo" hidden></span>
+          </span>
+          <span class="captures" id="botTopCaps"></span>
+          <span class="adv" id="botTopAdv" hidden></span>
+          <span class="player-bar__badge"><span class="spinner" id="botSpinner" hidden></span></span>
+        </div>
+
+        <div class="board-stage">
+          <div class="board-wrap">
+            <div class="board" id="botBoard"></div>
+          </div>
+        </div>
+
+        <div class="player-bar">
+          <span class="avatar avatar--xs" id="botPlayerAvatar"><i class="fa-solid fa-user"></i></span>
+          <span class="player-bar__id">
+            <span class="player-bar__name" id="botPlayerName">Sen</span>
+            <span class="player-bar__elo" id="botBotElo" hidden></span>
+          </span>
+          <span class="captures" id="botBotCaps"></span>
+          <span class="adv" id="botBotAdv" hidden></span>
+        </div>
+
+        <div class="turn-strip">
+          <span class="turn-dot" id="botTurnDot"></span>
+          <span class="turn-strip__text" id="botStatus">Sıra: <strong>Beyaz</strong></span>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn--ghost" type="button" id="botUndo"><i class="fa-solid fa-eye"></i> Son Hamle</button>
+          <button class="btn btn--ghost" type="button" id="botResign"><i class="fa-solid fa-flag"></i> Teslim Ol</button>
+          <button class="btn btn--primary" type="button" id="botNew"><i class="fa-solid fa-repeat"></i> Yeni Maç</button>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="fa-solid fa-list-ol"></i> Maç Kaydı</h3>
+            <span class="chip chip--ghost" id="botMoveCount">0 hamle</span>
+          </div>
+          <div class="movelist" id="botMoves"></div>
+          <textarea class="pgn-box" id="botPgn" readonly rows="3" placeholder="Hamleler burada PGN olarak birikir"></textarea>
+          <div class="btn-row btn-row--2">
+            <button class="btn btn--ghost btn--sm" type="button" id="botCopyPgn"><i class="fa-regular fa-copy"></i> Kopyala</button>
+            <button class="btn btn--primary btn--sm" type="button" id="botAnalyze"><i class="fa-solid fa-magnifying-glass-chart"></i> Analiz Et</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 4. AYARLAR ---------- -->
+    <section class="view" id="view-settings" data-tab="settings">
+      <div class="view__inner">
+        <div class="page-head">
+          <h1 class="page-title">Ayarlar</h1>
+          <p class="page-sub">Profilini ve görünümü özelleştir.</p>
+        </div>
+
+        <div class="card profile-card">
+          <button class="avatar avatar--lg" id="profileAvatar" type="button" aria-label="Profil fotoğrafını değiştir"><i class="fa-solid fa-user"></i></button>
+          <div class="profile-card__body">
+            <label class="field">
+              <span class="field__label">Görünen ad</span>
+              <input class="input" id="nameInput" type="text" placeholder="Adını yaz" maxlength="18">
+            </label>
+            <div class="btn-row btn-row--2">
+              <button class="btn btn--ghost btn--sm" type="button" id="avatarBtn"><i class="fa-solid fa-camera"></i> Fotoğraf</button>
+              <button class="btn btn--ghost btn--sm" type="button" id="avatarClear"><i class="fa-solid fa-trash"></i> Kaldır</button>
+            </div>
+            <input type="file" id="avatarFile" accept="image/*" hidden>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="fa-solid fa-sliders"></i> Tercihler</h3></div>
+          <label class="switch-row">
+            <span class="switch-row__label"><i class="fa-solid fa-volume-high sw-ico"></i> Ses efektleri</span>
+            <span class="switch"><input type="checkbox" id="soundToggle"><span class="switch__track"></span></span>
+          </label>
+          <label class="switch-row">
+            <span class="switch-row__label"><i class="fa-solid fa-mobile-screen-button sw-ico"></i> Titreşim</span>
+            <span class="switch"><input type="checkbox" id="vibrateToggle"><span class="switch__track"></span></span>
+          </label>
+          <label class="switch-row">
+            <span class="switch-row__label"><i class="fa-solid fa-lightbulb sw-ico"></i> Öğreticide ipucu okları</span>
+            <span class="switch"><input type="checkbox" id="hintToggle"><span class="switch__track"></span></span>
+          </label>
+          <label class="switch-row">
+            <span class="switch-row__label"><i class="fa-solid fa-arrows-rotate sw-ico"></i> Tahtayı otomatik çevir</span>
+            <span class="switch"><input type="checkbox" id="flipToggle"><span class="switch__track"></span></span>
+          </label>
+        </div>
+
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="fa-solid fa-palette"></i> Tahta Teması</h3></div>
+          <div class="swatch-grid" id="boardSwatches"></div>
+        </div>
+
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="fa-solid fa-chess-knight"></i> Taş Seti</h3></div>
+          <div class="swatch-grid" id="pieceSwatches"></div>
+        </div>
+
+        <!-- Promosyon kodu -->
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="fa-solid fa-gift"></i> Promosyon Kodu</h3></div>
+          <p class="muted-text">Elinde bir telafi kodu varsa buraya gir.</p>
+          <input class="input input--promo" id="promoInput" type="text" maxlength="24"
+                 placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off" inputmode="latin"
+                 style="margin-top:12px">
+          <button class="btn btn--primary btn--block" type="button" id="promoBtn" style="margin-top:10px">
+            <i class="fa-solid fa-gift"></i> Kodu Kullan
+          </button>
+          <p class="fb-not" style="margin-bottom:0"><i class="fa-solid fa-circle-info"></i>
+            Her kod bu cihazda yalnızca bir kez kullanılabilir.</p>
+        </div>
+
+        <!-- Geri bildirim -->
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="fa-solid fa-comment-dots"></i> Geri Bildirim</h3></div>
+          <p class="muted-text">Bir hata mı buldun, bir fikrin mi var? Bize yaz.</p>
+          <p class="muted-text" style="margin-top:6px">Mesajına teşhis için şunlar eklenir: adın, cihaz kimliğin, derecen, bakiyen ve uygulama sürümü. Fotoğrafın gönderilmez.</p>
+
+          <label class="field" style="margin-top:12px">
+            <span class="field__label">Konu</span>
+            <select class="input" id="fbKonu">
+              <option value="Hata bildirimi">Hata bildirimi</option>
+              <option value="Oyun kuralı hatası">Oyun kuralı hatası</option>
+              <option value="Motor / analiz sorunu">Motor / analiz sorunu</option>
+              <option value="Yerel ağ bağlantı sorunu">Yerel ağ bağlantı sorunu</option>
+              <option value="Market / S-Coin sorunu">Market / S-Coin sorunu</option>
+              <option value="Görsel bozukluk">Görsel bozukluk</option>
+              <option value="Öneri">Öneri</option>
+              <option value="Diğer">Diğer</option>
+            </select>
+          </label>
+
+          <label class="field" style="margin-top:10px">
+            <span class="field__label">Açıklama <span id="fbSayac" class="fb-sayac">0/1000</span></span>
+            <textarea class="pgn-box" id="fbMetin" rows="5" maxlength="1000"
+                      placeholder="Ne oldu? Hangi ekranda? Adım adım anlatırsan daha çabuk çözeriz."></textarea>
+          </label>
+
+          <label class="field" style="margin-top:10px">
+            <span class="field__label">Sana geri dönelim mi?</span>
+            <select class="input" id="fbIletisimTur">
+              <option value="yok">Hayır, geri dönüş istemiyorum</option>
+              <option value="E-posta">Evet — e-posta ile ulaşın</option>
+            </select>
+          </label>
+
+          <label class="field" id="fbIletisimAlan" style="margin-top:10px" hidden>
+            <span class="field__label">E-posta adresin</span>
+            <input class="input" id="fbIletisim" type="email" maxlength="80"
+                   autocomplete="email" inputmode="email" placeholder="ornek@mail.com">
+          </label>
+
+          <p class="fb-not"><i class="fa-solid fa-circle-info"></i>
+            Adın, cihaz kimliğin, bakiyen ve derecen otomatik eklenir — böylece durumu teyit edip
+            gerekirse sana özel telafi kodu üretebiliriz. Profil fotoğrafın ve maç kayıtların gönderilmez.</p>
+
+          <button class="btn btn--primary btn--block" type="button" id="fbGonder">
+            <i class="fa-solid fa-paper-plane"></i> Gönder
+          </button>
+        </div>
+
+        <button class="btn btn--ghost btn--block" type="button" id="resetBtn">
+          <i class="fa-solid fa-arrow-rotate-left"></i> Tüm Verileri Sıfırla
+        </button>
+
+        <!-- Marka -->
+        <div class="brand-foot">
+          <svg class="brand-foot__mark" viewBox="0 0 512 512" width="40" height="40" aria-hidden="true">
+            <g fill="currentColor">
+              <path d="M256 34 C241 58 243 78 256 90 C269 78 271 58 256 34 Z"/>
+              <path d="M256 82 L271 100 L256 118 L241 100 Z"/>
+              <path d="M256 110 C300 110 328 140 328 176 L184 176 C184 140 212 110 256 110 Z"/>
+              <path d="M170 198 Q256 168 342 198 Q256 228 170 198 Z"/>
+              <path d="M156 246 Q256 214 356 246 Q256 278 156 246 Z"/>
+              <path d="M64 330 Q140 300 242 330 L242 448 Q140 418 64 448 Z"/>
+              <path d="M448 330 Q372 300 270 330 L270 448 Q372 418 448 448 Z"/>
+            </g>
+          </svg>
+          <div class="brand-foot__name">ŞAHNAME</div>
+          <div class="brand-foot__sub">Satranç Antrenörü · Verilerin bu cihazda saklanır</div>
+          <div class="brand-foot__ver" id="surumYazi"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 5. MARKET ---------- -->
+    <section class="view" id="view-market" data-tab="market">
+      <div class="view__inner">
+        <div class="page-head">
+          <h1 class="page-title">Market</h1>
+          <p class="page-sub">S-Coin ile tema ve taş seti aç.</p>
+        </div>
+
+        <button class="odul-card" type="button" id="odulBtn">
+          <span class="odul-card__ico"><i class="fa-solid fa-clapperboard"></i></span>
+          <span class="odul-card__body">
+            <span class="odul-card__title">Reklam izle, S kazan</span>
+            <span class="odul-card__sub" id="odulSub">Kısa bir reklam karşılığında S-Coin</span>
+          </span>
+          <span class="odul-card__coin"><i class="fa-solid fa-coins"></i> <span id="odulMiktar">75</span></span>
+        </button>
+
+        <h4 class="section-label">S-Coin Paketleri</h4>
+        <div class="pack-grid" id="coinPacks"></div>
+        <p class="note" id="coinNote" hidden>
+          <i class="fa-solid fa-circle-info"></i><span id="coinNoteText"></span>
+        </p>
+
+        <h4 class="section-label">Tahta Temaları</h4>
+        <div class="shop-grid" id="shopBoards"></div>
+
+        <h4 class="section-label">Taş Setleri</h4>
+        <div class="shop-grid" id="shopPieces"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== ALT NAVİGASYON ===================== -->
+  <nav class="tabbar" id="tabbar" role="tablist" aria-label="Ana menü">
+    <span class="tabbar__indicator" id="tabIndicator" aria-hidden="true"></span>
+    <button class="tab is-active" type="button" role="tab" data-tab="learn" aria-selected="true">
+      <i class="fa-solid fa-graduation-cap tab__icon"></i><span class="tab__label">Öğretici</span></button>
+    <button class="tab" type="button" role="tab" data-tab="multi" aria-selected="false">
+      <i class="fa-solid fa-user-group tab__icon"></i><span class="tab__label">Oyuncu</span></button>
+    <button class="tab" type="button" role="tab" data-tab="bot" aria-selected="false">
+      <i class="fa-solid fa-robot tab__icon"></i><span class="tab__label">Bot</span></button>
+    <button class="tab" type="button" role="tab" data-tab="settings" aria-selected="false">
+      <i class="fa-solid fa-gear tab__icon"></i><span class="tab__label">Ayarlar</span></button>
+    <button class="tab" type="button" role="tab" data-tab="market" aria-selected="false">
+      <i class="fa-solid fa-store tab__icon"></i><span class="tab__label">Market</span></button>
+  </nav>
+
+</div>
+
+<!-- ===================== KATMANLAR ===================== -->
+<div class="promo-sheet" id="promoSheet" hidden>
+  <div class="promo-sheet__panel">
+    <h4 class="promo-sheet__title">Terfi seç</h4>
+    <div class="promo-sheet__opts" id="promoOpts"></div>
+  </div>
+</div>
+
+<div class="modal" id="gameOverModal" hidden>
+  <div class="modal__panel">
+    <div class="modal__icon" id="goIcon"><i class="fa-solid fa-crown"></i></div>
+    <h3 class="modal__title" id="goTitle">Kazandın!</h3>
+    <p class="modal__text" id="goText">Şah mat</p>
+    <div class="modal__reward" id="goReward"><i class="fa-solid fa-coins"></i> +50 S</div>
+
+    <!-- Derece değişimi -->
+    <div class="elo-box" id="goEloBox" hidden>
+      <div class="elo-row">
+        <span class="elo-row__k">Derecen</span>
+        <span class="elo-row__v"><span id="goEloOld">800</span> → <strong id="goEloNew">800</strong></span>
+        <span class="elo-delta" id="goEloDelta">+0</span>
+      </div>
+      <div class="elo-row elo-row--sub" id="goBonusRow">
+        <span class="elo-row__k"><i class="fa-solid fa-wand-magic-sparkles"></i> Hamle kaliten</span>
+        <span class="elo-row__v" id="goBonusText">ölçülüyor…</span>
+        <span class="elo-delta" id="goBonusDelta"></span>
+      </div>
+    </div>
+    <button class="btn btn--ghost btn--block btn--sm" type="button" id="goAnalyze" hidden>
+      <i class="fa-solid fa-magnifying-glass-chart"></i> Maçı Analiz Et
+    </button>
+    <div class="btn-row btn-row--2">
+      <button class="btn btn--ghost" type="button" id="goClose">Kapat</button>
+      <button class="btn btn--primary" type="button" id="goAgain">Tekrar Oyna</button>
+    </div>
+  </div>
+</div>
+
+<!-- Genel onay penceresi -->
+<div class="modal" id="confirmModal" hidden>
+  <div class="modal__panel">
+    <div class="modal__icon" id="cfIcon"><i class="fa-solid fa-circle-question"></i></div>
+    <h3 class="modal__title" id="cfTitle">Emin misin?</h3>
+    <p class="modal__text" id="cfText"></p>
+    <div class="cf-list" id="cfList" hidden></div>
+    <p class="cf-quote" id="cfQuote" hidden></p>
+    <div class="btn-row btn-row--2">
+      <button class="btn btn--ghost" type="button" id="cfCancel">Vazgeç</button>
+      <button class="btn btn--primary" type="button" id="cfOk">Evet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ürün önizleme -->
+<div class="modal" id="previewModal" hidden>
+  <div class="modal__panel modal__panel--wide">
+    <h3 class="modal__title" id="pvTitle">Önizleme</h3>
+    <p class="modal__text" id="pvSub"></p>
+    <span class="rarity" id="pvRarity"></span>
+    <div class="board-wrap board-wrap--preview" id="pvWrap">
+      <div class="board" id="pvBoard"></div>
+    </div>
+    <div class="pv-price" id="pvPrice"></div>
+    <div class="btn-row btn-row--2">
+      <button class="btn btn--ghost" type="button" id="pvClose">Kapat</button>
+      <button class="btn btn--primary" type="button" id="pvBuy">Satın Al</button>
+    </div>
+  </div>
+</div>
+
+<!-- Temalı seçim paneli (açılır listelerin yerine) -->
+<div class="secim-sheet" id="secimSheet" hidden>
+  <div class="secim-sheet__panel">
+    <div class="secim-sheet__baslik" id="secimBaslik">Seç</div>
+    <div class="secim-sheet__liste" id="secimListe"></div>
+    <button class="btn btn--ghost btn--block btn--sm" type="button" id="secimIptal">Vazgeç</button>
+  </div>
+</div>
+
+<!-- QR tarayıcı -->
+<div class="modal" id="scanModal" hidden>
+  <div class="modal__panel modal__panel--wide">
+    <h3 class="modal__title">QR Kodu Okut</h3>
+    <p class="modal__text" id="scanStatus">Kamera açılıyor…</p>
+    <div class="scan-view" id="scanView">
+      <video id="scanVideo" playsinline muted></video>
+      <div class="scan-frame"></div>
+    </div>
+    <button class="btn btn--ghost btn--block" type="button" id="scanClose">Kapat</button>
+  </div>
+</div>
+
+<div class="toast-host" id="toastHost"></div>
+
+<script src="p2p.js"></script>
+<script src="native.js"></script>
+<script src="engine.js"></script>
+<script src="game.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

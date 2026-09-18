@@ -1,0 +1,26 @@
+# Yayın imzası — ASLA paylaşılmaz
+keystore.properties
+*.jks
+*.keystore
+
+# Bağımlılıklar ve üretilen dosyalar
+node_modules/
+www/
+android/app/build/
+android/build/
+android/.gradle/
+android/capacitor-cordova-android-plugins/
+*.apk
+*.aab
+
+# Geliştirici aracı — pakete girmemeli
+kod-uretici.html
+
+# cap sync ile üretilen dosyalar
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+
+# Yerel araçlar ve notlar
+.claude/
+satranc_antrenor_master_prompt.md
