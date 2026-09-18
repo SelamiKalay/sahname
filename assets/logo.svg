@@ -1,0 +1,34 @@
+<!-- Şahname — ana logo işareti
+     Padişah kavuğu (sarık kıvrımları + sorguç) ile açık kitabın birleşimi.
+     Tek renkli siluet: her zeminde ve her boyutta çalışır. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"
+     fill="none" role="img" aria-label="Şahname">
+  <title>Şahname</title>
+
+  <g fill="currentColor">
+    <!-- Sorguç: kavuğun önündeki tüy -->
+    <path d="M256 34 C241 58 243 78 256 90 C269 78 271 58 256 34 Z"/>
+    <!-- Sorguç yuvası (mücevher) -->
+    <path d="M256 82 L271 100 L256 118 L241 100 Z"/>
+
+    <!-- Kavuk: tepelik -->
+    <path d="M256 110 C300 110 328 140 328 176 L184 176 C184 140 212 110 256 110 Z"/>
+    <!-- Sarık kıvrımları -->
+    <path d="M170 198 Q256 168 342 198 Q256 228 170 198 Z"/>
+    <path d="M156 246 Q256 214 356 246 Q256 278 156 246 Z"/>
+  </g>
+
+  <!-- Açık kitap: "Şahlar Kitabı" -->
+  <g fill="currentColor">
+    <path d="M64 330 Q140 300 242 330 L242 448 Q140 418 64 448 Z"/>
+    <path d="M448 330 Q372 300 270 330 L270 448 Q372 418 448 448 Z"/>
+  </g>
+
+  <!-- Sayfalarda satranç tahtasına göz kırpan kareler -->
+  <g fill="#12151b" opacity="0.32">
+    <rect x="104" y="360" width="34" height="34" rx="4"/>
+    <rect x="172" y="374" width="34" height="34" rx="4"/>
+    <rect x="306" y="374" width="34" height="34" rx="4"/>
+    <rect x="374" y="360" width="34" height="34" rx="4"/>
+  </g>
+</svg>

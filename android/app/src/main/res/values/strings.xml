@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Şahname</string>
+    <string name="title_activity_main">Şahname</string>
+    <string name="package_name">com.selam.sahname</string>
+    <string name="custom_url_scheme">com.selam.sahname</string>
+</resources>

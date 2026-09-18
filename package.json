@@ -1,0 +1,28 @@
+{
+  "name": "sahname",
+  "version": "1.0.0",
+  "description": "Şahname — Satranç Antrenörü",
+  "private": true,
+  "scripts": {
+    "sunucu": "node server.js",
+    "hazirla": "node build.js",
+    "senkron": "node build.js && npx cap sync android",
+    "ac": "npx cap open android",
+    "calistir": "node build.js && npx cap run android",
+    "varliklar": "npx @capacitor/assets generate --android --iconBackgroundColor #0b0e14 --splashBackgroundColor #0a0c10"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "^6.2.0",
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/app": "^6.0.2",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/haptics": "^6.0.2",
+    "@capacitor/preferences": "^6.0.3",
+    "@capacitor/splash-screen": "^6.0.3",
+    "@capacitor/status-bar": "^6.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.2.0"
+  }
+}
