@@ -2,6 +2,8 @@
 
 > **English:** Şahname is a fully offline chess trainer for Android (Capacitor): interactive lessons, games against the Stockfish engine with move explanations in Turkish, and serverless two-player games between phones on the same Wi-Fi using WebRTC with QR-code signaling.
 
+<p align="center"><img src="docs/ekran-goruntusu.jpeg" alt="Şahname ekran görüntüsü" width="320"></p>
+
 Satrancı öğrenmek ve oynamak için geliştirilmiş, tamamen çevrimdışı çalışan bir
 mobil satranç uygulaması. Web teknolojileriyle yazılıp Capacitor ile Android'e
 paketlenmiştir.
