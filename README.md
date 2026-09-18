@@ -1,57 +1,57 @@
-# Şahname — Satranç Antrenörü
+# Şahname — Chess Trainer
 
-> **English:** Şahname is a fully offline chess trainer for Android (Capacitor): interactive lessons, games against the Stockfish engine with move explanations in Turkish, and serverless two-player games between phones on the same Wi-Fi using WebRTC with QR-code signaling.
+**English** | [Türkçe](README.tr.md)
 
-<p align="center"><img src="docs/ekran-goruntusu.jpeg" alt="Şahname ekran görüntüsü" width="320"></p>
+<p align="center"><img src="docs/ekran-goruntusu.jpeg" alt="Şahname screenshot" width="320"></p>
 
-Satrancı öğrenmek ve oynamak için geliştirilmiş, tamamen çevrimdışı çalışan bir
-mobil satranç uygulaması. Web teknolojileriyle yazılıp Capacitor ile Android'e
-paketlenmiştir.
+A fully offline mobile chess app for learning and playing chess. It is built with
+web technologies and packaged for Android with Capacitor. The user interface is in
+Turkish.
 
-## Özellikler
+## Features
 
-- **Öğren** — taşların hareketlerini tahta üzerinde gösteren interaktif dersler
-- **Bota karşı** — tarayıcıda çalışan Stockfish motoruna karşı ayarlanabilir
-  zorlukta oyun; hamleleri Türkçe açıklayan analiz yardımcısı
-- **İki kişilik** — aynı Wi-Fi ağındaki iki telefon arasında **sunucusuz** oyun:
-  WebRTC bağlantısı QR kodlarıyla kurulur (SDP, QR'a sığması için gzip +
-  base64url ile sıkıştırılır)
-- **Mağaza** — tahta ve taş temaları, nadirlik seviyeleri, oyun içi coin ekonomisi
-- **Profil ve derece** — oyuncu profili, maç geçmişi, derece sistemi
-- **Promosyon kodları** — HMAC-SHA256 ile imzalanan, istenirse cihaza bağlanabilen kodlar
-- **Geri bildirim formu**, titreşim, ses efektleri, açık/koyu tema
-- Tüm veriler cihazda saklanır; internet bağlantısı gerekmez
+- **Learn** — interactive lessons that show how each piece moves on the board
+- **Play the bot** — games against the in-browser Stockfish engine with adjustable
+  difficulty, plus an analysis helper that explains moves in Turkish
+- **Two players** — **serverless** games between two phones on the same Wi-Fi: the
+  WebRTC connection is established by scanning QR codes (the SDP is compressed with
+  gzip + base64url so that it fits into a QR code)
+- **Shop** — board and piece themes, rarity tiers, an in-game coin economy
+- **Profile and rating** — player profile, match history, rating system
+- **Promo codes** — signed with HMAC-SHA256, optionally bound to a single device
+- **Feedback form**, haptics, sound effects, light/dark theme
+- All data is stored on the device; no internet connection is required
 
-## Teknolojiler
+## Tech Stack
 
 HTML · CSS · JavaScript · Capacitor 6 · Stockfish (WebAssembly) · chess.js ·
 WebRTC · jsQR / qrcodejs · AdMob
 
-## Proje Yapısı
+## Project Structure
 
 ```
-index.html, style.css      Arayüz
-app.js                     Uygulama mantığı (profil, mağaza, dersler, ekonomi, yönlendirme)
-game.js                    Oyun tahtası ve maç akışı
-engine.js                  Stockfish ile iletişim
-p2p.js                     WebRTC + QR ile cihazdan cihaza bağlantı
-native.js                  Capacitor eklentileri (titreşim, durum çubuğu, depolama)
-server.js                  Yerel ağda test için geliştirme sunucusu
-build.js                   Paketlenecek dosyaları www/ klasörüne toplar
-vendor/                    Gömülü kütüphaneler (çevrimdışı çalışma için)
-android/                   Capacitor Android projesi
+index.html, style.css      User interface
+app.js                     App logic (profile, shop, lessons, economy, routing)
+game.js                    Game board and match flow
+engine.js                  Communication with Stockfish
+p2p.js                     Device-to-device connection via WebRTC + QR
+native.js                  Capacitor plugins (haptics, status bar, storage)
+server.js                  Development server for testing on the local network
+build.js                   Collects the files to be packaged into www/
+vendor/                    Bundled libraries (for offline use)
+android/                   Capacitor Android project
 ```
 
-## Geliştirme
+## Development
 
 ```bash
 npm install
-npm run sunucu        # http://localhost:5173 — aynı Wi-Fi'deki cihazlardan da açılabilir
+npm run sunucu        # http://localhost:5173 — also reachable from devices on the same Wi-Fi
 ```
 
-## Android Derlemesi
+## Android Build
 
-JDK 17 ve Android SDK gerekir.
+Requires JDK 17 and the Android SDK.
 
 ```bash
 npm run senkron       # node build.js + npx cap sync android
@@ -59,23 +59,24 @@ cd android
 gradlew assembleDebug
 ```
 
-Play Store yayın adımları için bkz. [YAYIN.md](YAYIN.md).
+See [YAYIN.md](YAYIN.md) for the Play Store release steps (in Turkish).
 
-## Yapılandırma
+## Configuration
 
-Aşağıdaki değerler güvenlik nedeniyle depoya konmamıştır; `app.js` içinde
-kendi değerlerinizle doldurun:
+The following values are intentionally not included in the repository for security
+reasons; fill them in with your own values in `app.js`:
 
-| Sabit | Açıklama |
+| Constant | Description |
 |---|---|
-| `Promosyon.GIZLI` | Promosyon kodlarını imzalayan gizli anahtar |
-| `GeriBildirim.ANAHTAR` | [Web3Forms](https://web3forms.com) erişim anahtarı |
-| `GeriBildirim.MAIL` | Form çalışmazsa kullanılacak yedek e-posta adresi |
+| `Promosyon.GIZLI` | Secret key used to sign promo codes |
+| `GeriBildirim.ANAHTAR` | [Web3Forms](https://web3forms.com) access key |
+| `GeriBildirim.MAIL` | Fallback e-mail address if the form cannot be sent |
 
-Yayın imzası (`*.jks`, `keystore.properties`) da `.gitignore` ile dışarıda tutulur.
+The release signing files (`*.jks`, `keystore.properties`) are also excluded via
+`.gitignore`.
 
-## Lisans Notu
+## License
 
-Uygulama, **GNU GPL v3** lisanslı [Stockfish](https://github.com/official-stockfish/Stockfish)
-motorunun JavaScript derlemesini ([stockfish.js](https://github.com/niklasf/stockfish.js))
-içerir.
+This project is licensed under the **GNU GPL v3**, because it bundles a JavaScript
+build ([stockfish.js](https://github.com/niklasf/stockfish.js)) of the GPLv3-licensed
+[Stockfish](https://github.com/official-stockfish/Stockfish) engine.
