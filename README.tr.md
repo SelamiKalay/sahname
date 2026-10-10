@@ -4,7 +4,7 @@
 
 <p align="center"><img src="docs/ekran-goruntusu.jpeg" alt="Şahname ekran görüntüsü" width="320"></p>
 
-Satrancı öğrenmek ve oynamak için geliştirilmiş, tamamen çevrimdışı çalışan bir
+Satrancı öğrenmek ve oynamak için geliştirilmiş, internet olmadan oynanabilen bir
 mobil satranç uygulaması. Web teknolojileriyle yazılıp Capacitor ile Android'e
 paketlenmiştir.
 
@@ -20,7 +20,8 @@ paketlenmiştir.
 - **Profil ve derece** — oyuncu profili, maç geçmişi, derece sistemi
 - **Promosyon kodları** — HMAC-SHA256 ile imzalanan, istenirse cihaza bağlanabilen kodlar
 - **Geri bildirim formu**, titreşim, ses efektleri, açık/koyu tema
-- Tüm veriler cihazda saklanır; internet bağlantısı gerekmez
+- Tüm oyun verileri cihazda saklanır; oyun internet olmadan oynanır. İnternet
+  yalnızca reklamlar (AdMob) ve geri bildirim formu için kullanılır
 
 ## Teknolojiler
 
@@ -36,7 +37,7 @@ game.js                    Oyun tahtası ve maç akışı
 engine.js                  Stockfish ile iletişim
 p2p.js                     WebRTC + QR ile cihazdan cihaza bağlantı
 native.js                  Capacitor eklentileri (titreşim, durum çubuğu, depolama)
-server.js                  Yerel ağda test için geliştirme sunucusu
+tools/dev-server.js        Yalnızca geliştirme: yerel ağda test sunucusu ve oda rölesi (pakete girmez)
 build.js                   Paketlenecek dosyaları www/ klasörüne toplar
 vendor/                    Gömülü kütüphaneler (çevrimdışı çalışma için)
 android/                   Capacitor Android projesi
@@ -71,6 +72,12 @@ kendi değerlerinizle doldurun:
 | `Promosyon.GIZLI` | Promosyon kodlarını imzalayan gizli anahtar |
 | `GeriBildirim.ANAHTAR` | [Web3Forms](https://web3forms.com) erişim anahtarı |
 | `GeriBildirim.MAIL` | Form çalışmazsa kullanılacak yedek e-posta adresi |
+
+> **Promosyon kodlarının sınırı:** Kodlar uygulama içinde doğrulandığı için
+> `Promosyon.GIZLI` yayın paketine (APK) gömülür. İmza, kodların tahmin edilmesini
+> ve elle üretilmesini zorlaştırır; ancak APK'yı açabilen biri anahtarı bulup
+> kendi kodunu üretebilir. Bu yüzden kodlar yalnızca oyun içi kozmetik ödüller
+> içindir; gerçek değeri olan ödüller için doğrulamanın sunucuda yapılması gerekir.
 
 Yayın imzası (`*.jks`, `keystore.properties`) da `.gitignore` ile dışarıda tutulur.
 

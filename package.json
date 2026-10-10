@@ -4,7 +4,7 @@
   "description": "Şahname — Satranç Antrenörü",
   "private": true,
   "scripts": {
-    "sunucu": "node server.js",
+    "sunucu": "node tools/dev-server.js",
     "hazirla": "node build.js",
     "senkron": "node build.js && npx cap sync android",
     "ac": "npx cap open android",

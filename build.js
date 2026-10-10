@@ -3,7 +3,7 @@
    ------------------------------------------------------------
    Capacitor, uygulamanın içine gömülecek dosyaları tek bir
    klasörden alır. Bu betik yalnızca GEREKLİ dosyaları kopyalar;
-   server.js, build.js gibi geliştirme dosyaları pakete girmez.
+   tools/, build.js gibi geliştirme dosyaları pakete girmez.
 
    Kullanım:  node build.js
    ============================================================ */

@@ -1200,7 +1200,7 @@ class VersusGame extends GameBase {
    YEREL AĞ TAŞIMA KATMANI
    ------------------------------------------------------------
    İki arka uç:
-   • relay        — server.js üzerindeki HTTP oda röle servisi
+   • relay        — tools/dev-server.js üzerindeki HTTP oda röle servisi
                     (aynı Wi-Fi'daki FARKLI cihazlar arasında çalışır)
    • broadcast    — BroadcastChannel (aynı tarayıcıdaki farklı sekmeler)
    ------------------------------------------------------------ */
@@ -1219,7 +1219,7 @@ class LanTransport {
     this._bc = null;
   }
 
-  /** Röle servisi var mı? (server.js çalışıyorsa evet) */
+  /** Röle servisi var mı? (tools/dev-server.js çalışıyorsa evet) */
   static async detect() {
     try {
       const r = await fetch("/api/ping", { cache: "no-store" });

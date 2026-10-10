@@ -1,7 +1,7 @@
 /* ============================================================
    ŞAH — Yerel geliştirme sunucusu + yerel ağ oda rölesi
    ------------------------------------------------------------
-   Çalıştır:  node server.js
+   Çalıştır:  npm run sunucu   (veya: node tools/dev-server.js)
    Aynı Wi-Fi ağındaki telefondan:  http://<bilgisayar-ip>:5173
    ============================================================ */
 const http = require("http");
@@ -9,7 +9,7 @@ const fs   = require("fs");
 const path = require("path");
 const os   = require("os");
 
-const ROOT = __dirname;
+const ROOT = path.resolve(__dirname, "..");   // proje kökü (tools/ bir üst)
 const PORT = 5173;
 
 const TYPES = {
@@ -29,7 +29,7 @@ const ISTEK_PENCERE  = 10_000; // hız sınırı penceresi (ms)
 const ISTEK_LIMIT    = 60;     // pencere başına IP başına istek
 
 /* Yalnızca uygulamanın çalışması için gereken dosyalar sunulur.
-   server.js, test betikleri, .git gibi şeyler ASLA dışarı verilmez. */
+   Bu sunucu, test betikleri, .git gibi şeyler ASLA dışarı verilmez. */
 const SERVILEBILIR = new Set([
   "/index.html", "/style.css", "/app.js", "/game.js", "/engine.js", "/p2p.js", "/native.js",
   "/manifest.webmanifest"
@@ -180,7 +180,7 @@ http.createServer(async (req, res) => {
   p = p.replace(/\\/g, "/");
 
   // BEYAZ LİSTE: yalnızca uygulamanın ihtiyaç duyduğu dosyalar sunulur.
-  // Böylece server.js, test betikleri, .git vb. yerel ağa sızmaz.
+  // Böylece tools/, test betikleri, .git vb. yerel ağa sızmaz.
   const klasordeMi = SERVILEBILIR_KLASOR.some(k => p.startsWith(k)) &&
                      SERVILEBILIR_UZANTI.has(path.extname(p).toLowerCase()) &&
                      !p.includes("..");
