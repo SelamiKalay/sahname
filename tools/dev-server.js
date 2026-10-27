@@ -10,7 +10,7 @@ const path = require("path");
 const os   = require("os");
 
 const ROOT = path.resolve(__dirname, "..");   // proje kökü (tools/ bir üst)
-const PORT = 5173;
+const PORT = Number(process.env.PORT) || 5173;   // testler farklı port verir
 
 const TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -175,7 +175,11 @@ http.createServer(async (req, res) => {
   // yine de /favicon.ico yokladığı için sessizce boş yanıt veriyoruz.
   if (url.pathname === "/favicon.ico") { res.writeHead(204); return res.end(); }
 
-  let p = decodeURIComponent(url.pathname);
+  // Bozuk yüzde kodlaması (ör. /%E0%A4%A) URIError fırlatır; yakalanmazsa
+  // tek bir istek tüm sunucuyu kapatır.
+  let p;
+  try { p = decodeURIComponent(url.pathname); }
+  catch { res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" }); return res.end("Geçersiz adres"); }
   if (p === "/") p = "/index.html";
   p = p.replace(/\\/g, "/");
 

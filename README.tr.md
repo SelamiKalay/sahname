@@ -48,6 +48,7 @@ android/                   Capacitor Android projesi
 ```bash
 npm install
 npm run sunucu        # http://localhost:5173 — aynı Wi-Fi'deki cihazlardan da açılabilir
+npm test              # geliştirme sunucusu duman testleri (GitHub Actions her push'ta çalıştırır)
 ```
 
 ## Android Derlemesi

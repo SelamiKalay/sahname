@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "sunucu": "node tools/dev-server.js",
+    "test": "node --test",
     "hazirla": "node build.js",
     "senkron": "node build.js && npx cap sync android",
     "ac": "npx cap open android",

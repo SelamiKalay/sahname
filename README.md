@@ -48,6 +48,7 @@ android/                   Capacitor Android project
 ```bash
 npm install
 npm run sunucu        # http://localhost:5173 — also reachable from devices on the same Wi-Fi
+npm test              # dev server smoke tests (also run by GitHub Actions on every push)
 ```
 
 ## Android Build

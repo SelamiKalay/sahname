@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      # Uygulamaya gömülen paketlerde yüksek/kritik açık varsa kırmızı olur.
+      # Geliştirme araçlarındaki (@capacitor/assets, cli) açıklar pakete girmez.
+      - name: Bağımlılık açıkları (üretim)
+        run: npm audit --omit=dev --audit-level=high
+
+      # Derleme adımı olmadığı için sözdizimi hatası doğrudan uygulamayı bozar
+      - name: JS sözdizimi
+        run: |
+          for f in *.js tools/*.js tests/*.js; do node --check "$f" || exit 1; done
+
+      - name: Geliştirme sunucusu duman testi
+        run: npm test
+
+      - name: www/ paketi
+        run: |
+          node build.js
+          test -f www/index.html && test -f www/app.js && test -f www/vendor/chess.min.js
+          if [ -e www/tools ] || [ -e www/build.js ] || [ -e www/package.json ]; then
+            echo "geliştirme dosyası pakete girdi"; exit 1
+          fi
